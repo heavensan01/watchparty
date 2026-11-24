@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>UniFlix</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0a09;--pn:#141210;--ln:#2a2623;--am:#FF9FC7;--tx:#f1ece4;--mu:#9a928a}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px Inter,system-ui,sans-serif;min-height:100vh}
+.hidden{display:none!important}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+button{font:inherit;color:inherit;cursor:pointer;border:0}
+.btn{background:var(--am);color:#2a0f1c;border-radius:999px;padding:14px 22px;font-weight:600}
+.sm{padding:9px 16px}.g{background:#1d1a17;border-radius:999px;padding:10px 16px}
+.g.on{background:#3a1b2a;color:var(--am)}
+input[type=text]{background:transparent;border:1px solid var(--ln);color:var(--tx);border-radius:10px;padding:15px;font:inherit;width:100%}
+#landing{max-width:1200px;margin:0 auto;padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;min-height:100vh}
+.pill{background:var(--am);color:#2a0f1c;font-size:12px;font-weight:600;border-radius:999px;padding:3px 9px}
+h1{font-size:76px;line-height:.95;margin:14px 0 18px}h1 em{color:var(--am);font-style:normal}
+.lead{color:#cfc7bd;font-size:19px;line-height:1.55}
+.box{border:1px solid var(--ln);border-radius:16px;padding:22px;background:var(--pn);margin:26px 0 14px}
+.box .btn{width:100%;margin:14px 0 10px;padding:18px}.sub{color:var(--mu);font-size:13px;text-align:center}
+.jr{display:flex;gap:10px}
+.demo{position:relative;height:400px;border:1px solid var(--ln);border-radius:20px;background:radial-gradient(circle at 50% 40%,#3a1b2a,#0e0c0a 70%);display:flex;align-items:center;justify-content:center;font-size:54px;color:#ffd9ea;box-shadow:0 0 80px rgba(255,159,199,.12)}
+.faces{position:absolute;bottom:-34px;display:flex;gap:12px}
+.face{width:68px;height:68px;border-radius:16px;background:#241d17;display:flex;align-items:center;justify-content:center;font-size:34px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.mc{background:var(--pn);border:1px solid var(--ln);border-radius:16px;padding:28px;width:100%;max-width:560px}
+.fg{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 16px}
+.fc{width:50px;height:50px;border-radius:12px;background:#1d1a17;font-size:26px;border:2px solid transparent}.fc.on{border-color:var(--am)}
+label.ck{display:flex;gap:10px;color:#cfc7bd;font-size:14px;line-height:1.4;margin:10px 0}
+.lbl{color:var(--mu);font-size:14px;margin:12px 0 6px;display:block}
+#room{display:grid;grid-template-columns:minmax(0,1fr) 380px;grid-template-rows:auto 1fr;gap:0 16px;height:100vh;padding:10px 14px}
+.top{grid-column:1/3;display:flex;justify-content:space-between;align-items:center;padding-bottom:8px}
+.top h2{margin:0;font-size:28px}.st{color:var(--mu);font-size:13px}.st:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--am);margin-right:6px}
+.main{display:flex;flex-direction:column;gap:10px;min-height:0;min-width:0}
+.stage{position:relative;background:#000;border:1px solid var(--ln);border-radius:14px;flex:1;min-height:200px;overflow:hidden;user-select:none}
+#vid{width:100%;height:100%;object-fit:contain;background:#000}
+#empty{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:6%;gap:10px}
+#empty small{color:var(--am)}#empty h3{font-size:44px;margin:0}#empty p{color:var(--mu);max-width:520px;margin:0}
+#cd{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:120px;background:rgba(0,0,0,.55);color:var(--am);z-index:5}
+.ctl{position:absolute;inset:0;display:none;flex-direction:column;justify-content:space-between;background:linear-gradient(#000a,transparent 25%,transparent 65%,#000c);z-index:3}
+.stage.ui .ctl{display:flex}.stage.ui{cursor:default}.stage:not(.ui){cursor:none}
+.ct{padding:12px 16px;font-size:14px;white-space:nowrap;overflow:hidden}
+.cm{display:flex;justify-content:center;gap:34px;align-items:center}
+.cm button{background:#0008;border-radius:50%;width:54px;height:54px;font-size:15px}.cm #pp{width:76px;height:76px;font-size:30px}
+.cb{padding:8px 14px 12px}.sr{display:flex;gap:10px;align-items:center;font-size:13px;font-variant-numeric:tabular-nums}
+.sr input{flex:1;accent-color:var(--am)}
+.br{display:flex;gap:8px;align-items:center;margin-top:6px}.br button{background:#0008;border-radius:8px;padding:6px 11px;font-size:13px}.br .sp{flex:1}
+#vol{width:90px;accent-color:var(--am)}
+#unl{position:absolute;right:14px;top:14px;z-index:6;background:#000a;border-radius:8px;padding:10px 14px}
+#sub{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);max-width:86%;text-align:center;background:#000b;color:#fff;font-size:20px;line-height:1.35;padding:4px 12px;border-radius:6px;z-index:2;pointer-events:none}
+.stage.ui #sub{bottom:104px}
+#menu{position:absolute;right:14px;bottom:84px;z-index:8;background:#14110f;border:1px solid var(--ln);border-radius:12px;padding:8px;min-width:220px;max-height:60%;overflow:auto;display:flex;flex-direction:column}
+#menu b{padding:6px 10px;color:var(--mu);font-weight:500}#menu button{background:none;text-align:left;padding:9px 10px;border-radius:8px}#menu button:hover{background:#241f1b}#menu .on{color:var(--am)}
+#unm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:7;padding:16px 26px;font-size:18px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2a1822;border:1px solid var(--am);padding:12px 18px;border-radius:12px;z-index:99;max-width:90vw;text-align:center}
+.fl{position:absolute;bottom:60px;font-size:34px;animation:up 2.4s ease-out forwards;z-index:4;pointer-events:none}
+@keyframes up{to{transform:translateY(-240px);opacity:0}}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.tm{font-size:24px;font-variant-numeric:tabular-nums;margin-left:6px}.push{margin-left:auto}
+.rx{display:flex;gap:6px}.rx button{background:#1d1a17;border-radius:50%;width:42px;height:42px;font-size:21px}
+.side{background:var(--pn);border-radius:16px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--ln)}.tabs button{flex:1;background:none;padding:15px;color:var(--mu)}.tabs .on{color:var(--tx);box-shadow:inset 0 -2px var(--am)}
+#plist{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:9px;font-size:14px}
+.chat{flex:1;display:flex;flex-direction:column;min-height:0;background:#0e0c0a}
+#msgs{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:3px;min-height:0}
+.sys{align-self:center;background:#1d1a17;color:var(--mu);font-size:12px;padding:4px 12px;border-radius:999px;margin:6px 0;text-align:center}
+.bub{max-width:82%;padding:7px 10px 5px;border-radius:12px;font-size:14px;line-height:1.35;word-break:break-word;margin-top:6px}.bub.cont{margin-top:0}
+.bub.me{align-self:flex-end;background:#8a3a5f;border-bottom-right-radius:3px}.bub.them{align-self:flex-start;background:#1f1b18;border-bottom-left-radius:3px}
+.bub .who{font-size:12.5px;font-weight:600;margin-bottom:2px}
+.bub .ts{float:right;margin:6px 0 0 10px;font-size:10.5px;color:#c9aebb;font-style:normal}
+.bub.big span{font-size:34px;line-height:1.2}
+.typ{height:18px;padding:0 14px;font-size:12px;color:var(--am)}
+.emo{border-top:1px solid var(--ln);background:#161310}
+.ec{display:flex}.ec button{flex:1;background:none;padding:8px;font-size:18px}.ec .on{box-shadow:inset 0 -2px var(--am)}
+.eg{display:grid;grid-template-columns:repeat(8,1fr);max-height:170px;overflow:auto;padding:6px}.eg button{background:none;font-size:23px;padding:4px}
+.cin{display:flex;gap:8px;padding:10px;align-items:flex-end;background:#161310}
+.cin textarea{flex:1;resize:none;background:#241f1b;border:0;border-radius:20px;color:var(--tx);padding:11px 14px;font:inherit;max-height:110px;outline:none}
+.ib{padding:9px 12px;font-size:20px}.send{background:var(--am);color:#2a0f1c;border-radius:50%;width:42px;height:42px;font-size:17px;flex:none}
+.ub{background:var(--am);color:#2a0f1c;border-radius:999px;font-size:11px;padding:1px 6px;margin-left:4px}
+
+.sp2{filter:blur(5px);cursor:pointer;background:#2a2623}.sp2.on{filter:none}
+.pr{display:flex;align-items:center;gap:10px}.av{width:34px;height:34px;border-radius:9px;background:#241d17;display:flex;align-items:center;justify-content:center;font-size:19px}.rd{margin-left:auto;color:var(--am);font-size:12px}
+
+.stage:fullscreen,.stage:-webkit-full-screen{width:100vw;height:100vh;border:0;border-radius:0;flex:none}
+.stage.pfs{position:fixed;inset:0;width:100vw;height:100dvh;z-index:100;border:0;border-radius:0;flex:none}
+body.pfs-on{overflow:hidden}
+#vid{max-height:100%}
+.ct{display:flex;align-items:center;gap:10px}.ct #ttl{flex:1;overflow:hidden;text-overflow:ellipsis}
+#fsTop{background:#0008;border-radius:8px;padding:8px 12px;font-size:18px;line-height:1;flex:none}
+@media(max-width:900px){#landing{grid-template-columns:1fr}h1{font-size:52px}.demo{display:none}#room{grid-template-columns:1fr;grid-template-rows:auto auto 360px;height:auto}.top{grid-column:1}.stage{height:56vw;flex:none}}
+</style></head><body>
+
+<div id="landing">
+ <div>
+  <span class="pill">Free</span> <b style="color:var(--am);margin-left:6px">UniFlix</b>
+  <h1 class="serif">Press play together, <em>from anywhere</em></h1>
+  <p class="lead">Stream a movie from your own device to friends in a private room. Everyone sees the same frame, anyone can pause or seek, and chat and reactions keep it social.</p>
+  <div class="box">
+   <label class="lbl" style="margin-top:0">What are you watching? (optional)</label>
+   <input type="text" id="ptitle" placeholder="Movie night" maxlength="60">
+   <button class="btn" id="startBtn">Start a watch party</button>
+   <div class="sub">Free · no sign-up · no extension · best with up to 5 people</div>
+  </div>
+  <div class="jr"><input type="text" id="joinIn" placeholder="Got a link? Paste it or the party code"><button class="g" id="joinBtn" style="padding:0 26px;font-weight:600">Join</button></div>
+  <p id="jerr" class="sub" style="color:#ff8a8a;text-align:left"></p>
+ </div>
+ <div class="demo serif">3·2·1·Play!<div class="faces"><div class="face">🦊</div><div class="face">🐼</div><div class="face">🦄</div><div class="face">👽</div><div class="face">🐸</div></div></div>
+</div>
+
+<div id="modal" class="hidden"><div class="mc">
+ <small style="color:var(--am);font-weight:600">You're joining a watch party</small>
+ <h2 class="serif" style="font-size:38px;margin:4px 0 8px">Pick your face</h2>
+ <div id="codeWrap" class="hidden"><label class="lbl">Room code</label><input type="text" id="mcode" maxlength="6" placeholder="ABC123" style="text-transform:uppercase;letter-spacing:5px;font-size:20px"></div>
+ <label class="lbl">Your name</label><input type="text" id="mname" maxlength="24" style="text-transform:none">
+ <label class="lbl">Pick a face</label><div class="fg" id="fg"></div>
+ <label class="ck"><input type="checkbox" id="age"><span>I'm 18 or older, or have a parent's permission, and I agree: nothing abusive, sexual, hateful or illegal.</span></label>
+ <p id="merr" class="sub" style="color:#ff8a8a;text-align:left;margin:0"></p>
+ <button class="btn" id="go" style="width:100%;padding:16px;margin-top:8px">Join the party</button>
+ <div style="text-align:center;margin-top:12px"><button class="g" style="background:none;color:var(--mu)" onclick="location.href='/'">Not now</button></div>
+</div></div>
+
+<div id="room" class="hidden">
+ <div class="top"><div><div class="st" id="status">Waiting for friends · share the invite</div><h2 class="serif" id="rtitle">UniFlix</h2></div>
+  <div class="row"><button class="g" id="codeChip" title="Click to copy the room code"></button><span class="g">👥 <span id="cnt">1</span></span><button class="btn sm" id="inv">Invite</button><button class="g" onclick="location.href='/'">Leave</button></div></div>
+ <div class="main">
+  <div class="row"><button class="btn sm hidden" id="chg" style="padding:10px 20px">Video file</button><span class="st hidden" id="proc"></span><button class="g hidden" id="fpb" title="Audio preparation" style="padding:6px 12px;font-size:13px">⏳ Audio</button><span class="st hidden" id="fproc"></span><button class="g hidden" id="subb">💬 Add subtitle file</button><input id="file" type="file" accept="video/*,.mkv,.avi,.mov,.ts,.m2ts,.wmv,.flv" class="hidden"><input id="subf" type="file" accept=".srt,.vtt" class="hidden"></div>
+  <div class="stage ui" id="stage">
+   <video id="vid" playsinline crossorigin="anonymous"></video>
+   <div id="empty"><small>Streamed live from the host's device</small><h3 class="serif">What are we watching?</h3><p id="etxt">Waiting for the host to pick a movie…</p><div><button class="g" id="pick">Pick a movie file</button></div></div>
+   <div id="cd" class="serif hidden"></div>
+   <div id="toast" class="hidden"></div>
+   <div id="sub" class="hidden"></div><div id="menu" class="hidden"></div>
+   <button id="unm" class="btn sm hidden">🔊 Tap to turn on sound</button>
+   <button id="unl" class="hidden">🔓 Unlock</button>
+   <div class="ctl" id="ctl">
+    <div class="ct"><span id="ttl">&nbsp;</span><button id="fsTop" title="Full screen" aria-label="Full screen">⛶</button></div>
+    <div class="cm"><button id="b10">⏪10</button><button id="pp">▶</button><button id="f10">10⏩</button></div>
+    <div class="cb"><div class="sr"><span id="cur">0:00</span><input type="range" id="sk" min="0" max="1000" value="0"><span id="dur">0:00</span></div>
+     <div class="br"><button id="lk">🔒 Lock</button><span class="sp"></span><input type="range" id="vol" min="0" max="1" step=".05" value="1"><button id="aud">🎧 Audio</button><button id="sbt">💬 Subs</button><button id="spd">1x</button><button id="asp">Fit</button><button id="fs">⛶</button></div></div>
+   </div>
+  </div>
+  <div class="row"><button class="g" id="b10b">⏪10</button><button class="btn sm" id="cdBtn" style="padding:12px 22px">▶ Countdown &amp; play</button><button class="g" id="f10b">10⏩</button><span class="tm" id="tm">0:00:00</span><button class="g push" id="rdy">I'm ready</button></div>
+  <div class="row"><div class="rx" id="rx"></div></div>
+ </div>
+ <div class="side">
+  <div class="tabs"><button class="on" id="t1">Chat <b id="ub" class="ub hidden">0</b></button><button id="t2"><span id="ptab">People 1</span></button></div>
+  <div id="chat" class="chat">
+   <div id="msgs"><div class="sys">Welcome to the party! Use ||text|| for spoilers.</div></div>
+   <div id="typ" class="typ"></div>
+   <div id="emo" class="emo hidden"><div id="ec" class="ec"></div><div id="eg" class="eg"></div></div>
+   <div class="cin"><button class="g ib" id="emoBtn">😊</button><textarea id="cin" rows="1" placeholder="Type a message"></textarea><button class="send" id="send">➤</button></div>
+  </div>
+  <div id="plist" class="hidden"></div>
+ </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io(), $ = id => document.getElementById(id), vid = $("vid"), stage = $("stage");
+const FACES = ["🍿","🎬","🦄","🐼","🦊","👽","🤖","🐸","👻","🦁","🐙","🌶️"];
+const cfgP = fetch("/ice-config").then(r => r.json()).catch(() => ({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] }));
+const rnd = () => ["Binge","Popcorn","Cine","Couch","Night","Plot"][Math.random()*6|0] + " " + ["Fox","Panda","Owl","Lion","Frog","Ghost"][Math.random()*6|0];
+const fmt = s => { s = Math.max(0, s|0); const h = s/3600|0, m = (s%3600)/60|0, x = s%60; return (h ? h + ":" + String(m).padStart(2,"0") : m) + ":" + String(x).padStart(2,"0"); };
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let role = null, pending = null, face = FACES[Math.random()*FACES.length|0], S = { t:0, d:0, p:true, r:1, n:"" }, stream = null, locked = false, dragging = false;
+const peers = {}, waiting = new Set();
+const myCid = Math.random().toString(36).slice(2, 10);
+function toast(t) { const el = $("toast"); el.textContent = t; el.classList.remove("hidden"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.add("hidden"), 7000); }
+
+/* ---------- landing + join modal ---------- */
+$("fg").innerHTML = FACES.map(f => `<button class="fc${f===face?" on":""}">${f}</button>`).join("");
+$("fg").onclick = e => { if (e.target.classList.contains("fc")) { face = e.target.textContent; [...$("fg").children].forEach(c => c.classList.toggle("on", c === e.target)); } };
+function openModal(mode, c) { pending = { mode, c }; $("mname").value = rnd(); $("merr").textContent = ""; $("codeWrap").classList.toggle("hidden", mode !== "join"); $("mcode").value = c || ""; $("modal").classList.remove("hidden"); }
+$("startBtn").onclick = () => openModal("create");
+$("joinBtn").onclick = () => {
+  const v = $("joinIn").value.trim(), m = v.match(/room=([A-Za-z0-9]{6})/) || v.match(/^([A-Za-z0-9]{6})$/);
+  if (!m) return $("jerr").textContent = "Enter a valid link or 6-character code";
+  openModal("join", m[1].toUpperCase());
+};
+const urlRoom = new URLSearchParams(location.search).get("room"); if (urlRoom) openModal("join", urlRoom.toUpperCase());
+$("go").onclick = () => {
+  if (!$("age").checked) return $("merr").textContent = "Please accept the rules to continue.";
+  meInfo = { name: $("mname").value.trim() || rnd(), face, cid: myCid };
+  if (pending.mode === "create") socket.emit("create-room", { ...meInfo, title: $("ptitle").value.trim() }, r => { hostToken = r.token; enter("host", r.code, r.title); });
+  else {
+    const c = $("mcode").value.trim().toUpperCase();
+    if (c.length !== 6) return $("merr").textContent = "Enter the 6-character room code.";
+    socket.emit("join-room", { code: c, ...meInfo }, r => r.ok ? enter("viewer", c, r.title) : $("merr").textContent = "Room not found. Ask the host to keep their tab open and send a fresh invite link.");
+  }
+};
+socket.on("connect", () => {
+  if (!role) return;
+  const back = r => { if (!r.ok) { $("empty").classList.remove("hidden"); $("etxt").textContent = "This party has ended. Go back and start or join a new one."; } };
+  role === "host" ? socket.emit("rejoin-host", { code: roomCode, token: hostToken }, back) : socket.emit("join-room", { code: roomCode, ...meInfo }, back);
+});
+let roomCode, meInfo, hostToken;
+function enter(r, code, title) {
+  role = r; roomCode = code;
+  ["landing","modal"].forEach(i => $(i).classList.add("hidden")); $("room").classList.remove("hidden");
+  $("rtitle").textContent = title; $("codeChip").textContent = "Code: " + code; $("pick").classList.toggle("hidden", r !== "host");
+  if (r === "host") $("etxt").textContent = "Pick a movie from your device. It streams live to everyone. Playback starts when everyone clicks I'm ready.";
+  $("vol").classList.toggle("hidden", r === "host"); ["subb", "chg"].forEach(i => $(i).classList.toggle("hidden", r !== "host")); showCtl();
+}
+$("codeChip").onclick = async () => { try { await navigator.clipboard.writeText(roomCode); $("codeChip").textContent = "Copied!"; } catch {} setTimeout(() => $("codeChip").textContent = "Code: " + roomCode, 1200); };
+$("inv").onclick = async () => { const l = location.origin + "/?room=" + roomCode; try { await navigator.clipboard.writeText(l); $("inv").textContent = "Link copied!"; } catch { prompt("Copy this invite link:", l); } setTimeout(() => $("inv").textContent = "Invite", 1500); };
+
+/* ---------- player (MX-style) ---------- */
+const H = { on: false, base: 0, dur: 0, a: 0, info: null };      // H.info = tracks read from the local file by ffmpeg.wasm
+const T = () => H.base + vid.currentTime, D = () => H.on ? H.dur : (vid.duration || 0);
+const hs = () => ({ t: T(), d: D(), p: vid.paused, r: vid.playbackRate, n: S.n, a: H.a, au: H.info ? H.info.audio.map(x => x.label) : [] });
+function apply(a, v) {
+  if (!vid.src) return;
+  if (a === "play") vid.play().catch(() => {}); if (a === "pause") vid.pause();
+  if (a === "seek" || a === "skip") { const t = Math.max(0, Math.min(a === "skip" ? T() + v : v, D() || 1e9)); vid.currentTime = t; }
+  if (a === "audio") selectAudio(v);
+  if (a === "rate") vid.playbackRate = v;
+}
+const cmd = (a, v) => role === "host" ? apply(a, v) : socket.emit("control", { action: a, time: v });
+function render() {
+  $("pp").textContent = S.p ? "▶" : "⏸"; $("spd").textContent = S.r + "x";
+  $("cdBtn").textContent = S.p ? "▶ Countdown & play" : "⏸ Pause";
+  if (S.n) $("ttl").textContent = S.n;
+  if (!dragging) { $("sk").value = S.d ? S.t / S.d * 1000 : 0; $("cur").textContent = fmt(S.t); }
+  $("dur").textContent = fmt(S.d); const q = S.t|0; $("tm").textContent = (q/3600|0) + ":" + String((q%3600)/60|0).padStart(2,"0") + ":" + String(q%60).padStart(2,"0");
+}
+const hostSync = () => { if (role === "host") { S = hs(); socket.emit("state", S); render(); } };
+["play","pause","seeked","ratechange","loadedmetadata"].forEach(e => vid.addEventListener(e, hostSync));
+vid.addEventListener("timeupdate", () => { if (role === "host") { S = hs(); render(); } });
+setInterval(hostSync, 500);
+socket.on("state", s => { S = s; S.at = performance.now(); render(); });
+socket.on("control", ({ action, time }) => apply(action, time));
+
+const toggle = () => cmd(S.p ? "play" : "pause");
+$("pp").onclick = toggle; $("cdBtn").onclick = () => S.p ? socket.emit("countdown") : cmd("pause");
+[["b10",-10],["f10",10],["b10b",-10],["f10b",10]].forEach(([id, v]) => $(id).onclick = () => cmd("skip", v));
+const sk = $("sk");
+sk.oninput = () => { dragging = true; $("cur").textContent = fmt(sk.value / 1000 * S.d); };
+sk.onchange = () => { cmd("seek", sk.value / 1000 * S.d); dragging = false; };
+const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2]; $("spd").onclick = () => cmd("rate", RATES[(RATES.indexOf(S.r) + 1) % RATES.length]);
+const ASP = [["contain","Fit"],["cover","Fill"],["fill","Stretch"]]; let ai = 0;
+$("asp").onclick = () => { ai = (ai + 1) % 3; vid.style.objectFit = ASP[ai][0]; $("asp").textContent = ASP[ai][1]; };
+$("vol").oninput = e => { vid.volume = e.target.value; vid.muted = false; };
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+function pseudoFS(on) {
+  stage.classList.toggle("pfs", on); document.body.classList.toggle("pfs-on", on);
+  if (on) { try { screen.orientation?.lock?.("landscape").catch(() => {}); } catch (e) {} }
+  else { try { screen.orientation?.unlock?.(); } catch (e) {} }
+  syncFS();
+}
+function syncFS() { const on = !!fsEl() || stage.classList.contains("pfs"); $("fs").textContent = $("fsTop").textContent = on ? "✕" : "⛶"; }
+async function toggleFS() {
+  if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+  if (stage.classList.contains("pfs")) { pseudoFS(false); return; }
+  const req = stage.requestFullscreen || stage.webkitRequestFullscreen;
+  if (req) {
+    try {
+      await req.call(stage);
+      try { screen.orientation?.lock?.("landscape").catch(() => {}); } catch (e) {}
+      return;
+    } catch (e) { /* fall through to fake fullscreen */ }
+  }
+  pseudoFS(true); // iPhone Safari and other browsers with no element fullscreen
+}
+["fullscreenchange", "webkitfullscreenchange"].forEach(ev => document.addEventListener(ev, () => {
+  if (!fsEl()) { try { screen.orientation?.unlock?.(); } catch (e) {} }
+  syncFS();
+}));
+document.addEventListener("keydown", e => { if (e.key === "Escape" && stage.classList.contains("pfs")) pseudoFS(false); });
+$("fs").onclick = toggleFS; $("fsTop").onclick = toggleFS;
+$("lk").onclick = () => { locked = true; stage.classList.remove("ui"); $("unl").classList.remove("hidden"); };
+$("unl").onclick = () => { locked = false; $("unl").classList.add("hidden"); showCtl(); };
+let hideT; function showCtl() { if (locked) return; stage.classList.add("ui"); clearTimeout(hideT); hideT = setTimeout(() => stage.classList.remove("ui"), 3000); }
+stage.onmousemove = showCtl;
+stage.onclick = e => { if (e.target.closest("button,input") || locked) return; stage.classList.contains("ui") ? stage.classList.remove("ui") : showCtl(); };
+stage.ondblclick = e => { if (e.target.closest("button,input") || locked) return; const r = stage.getBoundingClientRect(); cmd("skip", e.clientX - r.left < r.width / 2 ? -10 : 10); };
+document.addEventListener("keydown", e => {
+  if (["INPUT", "TEXTAREA"].includes(e.target.tagName) || !role) return;
+  if (e.code === "Space") { e.preventDefault(); toggle(); }
+  if (e.code === "ArrowLeft") cmd("skip", -10); if (e.code === "ArrowRight") cmd("skip", 10);
+  if (e.key === "f") $("fs").click(); if (e.key === "m") vid.muted = !vid.muted;
+});
+document.addEventListener("click", () => { if (role === "viewer" && vid.srcObject && vid.muted) { vid.muted = false; vid.play().catch(() => {}); $("unm").classList.add("hidden"); } });
+$("unm").onclick = () => { vid.muted = false; vid.play(); $("unm").classList.add("hidden"); };
+
+/* ---------- host: pick file + stream ---------- */
+$("pick").onclick = $("chg").onclick = () => $("file").click();
+const viewers = new Set();
+let needCapture = false, hold = true, capStream = null, curUrl = null;
+function composeStream() { if (!capStream) return; stream = ALT.on && adest ? new MediaStream([...capStream.getVideoTracks(), ...adest.stream.getAudioTracks()]) : capStream; }
+function reconnectAll() { if (!stream) return; Object.keys(peers).forEach(id => { peers[id].close(); delete peers[id]; }); viewers.forEach(connectViewer); }
+function startCapture() {
+  Object.keys(peers).forEach(id => { peers[id].close(); delete peers[id]; });
+  capStream = stream = vid.captureStream ? vid.captureStream() : vid.mozCaptureStream();
+  let n = 0;
+  const go = () => {
+    if ((stream.getAudioTracks().length && stream.getVideoTracks().length) || ++n > 14) {
+      composeStream();
+      if (hold) { vid.pause(); if (!H.on) vid.currentTime = 0; }
+      viewers.forEach(connectViewer);
+    } else setTimeout(go, 150);
+  };
+  go();
+}
+vid.addEventListener("playing", () => { if (needCapture) { needCapture = false; startCapture(); } });
+$("file").onchange = e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return; window._lastFile = f;
+  const first = !vid.src; vid.pause(); resetTracks(); S = { t: 0, d: 0, p: true, r: 1, n: f.name }; hold = true; needCapture = true; stream = null; capStream = null; socket.emit("subs-clear");
+  Object.keys(peers).forEach(id => { peers[id].close(); delete peers[id]; });
+  if (curUrl) URL.revokeObjectURL(curUrl);
+  vid.src = curUrl = URL.createObjectURL(f); vid.playbackRate = 1; $("empty").classList.add("hidden"); $("chg").textContent = "🎬 Change movie"; render();
+  if (!first) toast("Loading “" + f.name + "”. Everyone should click I'm ready, then Countdown.");
+  vid.play().catch(() => toast("Click the video once to allow playback."));
+  analyze(f);
+};
+/* ---------- host: read audio languages + subtitles from the LOCAL file in the browser (ffmpeg.wasm). The movie is never uploaded. ---------- */
+let noNative = false, jobId = 0, ffScript = null;
+const ALT = { on: false, track: 0 }, SEG = 20;          // SEG = seconds of audio converted per chunk
+const proc = t => { $("proc").textContent = t || ""; $("proc").classList.toggle("hidden", !t); };
+const loadScript = src => new Promise((ok, bad) => { const el = document.createElement("script"); el.src = src; el.onload = ok; el.onerror = () => bad(new Error("could not load " + src)); document.head.append(el); });
+function makeFF() {                                      // one ffmpeg.wasm instance: its own worker, job queue and mounted file
+  const o = { ff: null, q: Promise.resolve(), file: null, name: null, log: null };
+  o.get = () => o.ff || (o.ff = (async () => {
+    await (ffScript || (ffScript = loadScript("/ffmpeg/ffmpeg.js")));
+    const f = new FFmpegWASM.FFmpeg(); f.on("log", ({ message }) => { o.log && o.log.push(message); o.onlog && o.onlog(message); });
+    await f.load({ coreURL: "/ffmpeg-core/ffmpeg-core.js", wasmURL: "/ffmpeg-core/ffmpeg-core.wasm" }); return f;
+  })().catch(e => { o.ff = null; ffScript = null; throw e; }));
+  o.run = fn => (o.q = o.q.then(fn, fn));
+  o.mount = async file => {
+    const ff = await o.get(); if (o.file === file) return ff;
+    if (o.file) { try { await ff.unmount("/in"); } catch {} } else { try { await ff.createDir("/in"); } catch {} }
+    o.name = "movie" + ((file.name.match(/\.\w{1,5}$/) || [".mkv"])[0]);
+    await ff.mount("WORKERFS", { files: [new File([file], o.name)] }, "/in"); o.file = file; return ff;
+  };
+  return o;
+}
+const FA = makeFF(), FS = makeFF(), FT = makeFF();   // FT = prepares the WHOLE audio track in the background                      // FA = audio chunks + track list, FS = subtitles (runs in the background)
+const LANGS = { eng: "English", tam: "Tamil", tel: "Telugu", hin: "Hindi", mal: "Malayalam", kan: "Kannada", jpn: "Japanese", kor: "Korean", fre: "French", fra: "French", spa: "Spanish", ger: "German", deu: "German", chi: "Chinese", zho: "Chinese", ara: "Arabic", rus: "Russian", por: "Portuguese", ita: "Italian", und: "Unknown" };
+function parseTracks(log) {
+  const au = [], su = [];
+  log.split("\n").forEach(l => {
+    const m = l.match(/Stream #0:\d+(?:\[0x[0-9a-f]+\])?(?:\((\w+)\))?: (Audio|Subtitle): (\w+)(.*)/i); if (!m) return;
+    const lang = LANGS[m[1]] || m[1] || "Unknown", codec = m[3].toLowerCase();
+    if (m[2] === "Audio") { const ch = /5\.1|7\.1|stereo|mono/.exec(m[4]); au.push({ codec, label: lang + " · " + codec.toUpperCase() + (ch ? " " + ch[0] : "") }); }
+    else su.push({ codec, label: lang, text: ["subrip", "srt", "ass", "ssa", "webvtt", "mov_text", "text"].includes(codec) });
+  });
+  return { audio: au, subs: su };
+}
+function resetTracks() {
+  jobId++; H.on = false; H.info = null; H.base = 0; H.a = 0; noNative = false; proc("");
+  aeStop(); AE.bufs.clear(); AE.ready.clear(); AE.hold++; AE.holding = false; dropFull(); fproc(""); if (ALT.on) { ALT.on = false; vid.muted = false; }
+}
+async function analyze(f) {
+  const my = jobId; proc("Loading audio engine…");
+  try {
+    const info = await FA.run(async () => {
+      if (my !== jobId) throw new Error("file changed");
+      const ff = await FA.mount(f); FA.log = [];
+      await ff.exec(["-i", "/in/" + FA.name]);               // no output file: ffmpeg just prints the track list, then exits
+      return parseTracks(FA.log.join("\n"));
+    });
+    if (my !== jobId) return;
+    H.info = info; hostSync();
+    noNative = !!info.audio.length && !["aac", "mp3", "opus", "vorbis", "flac"].includes(info.audio[0].codec);   // Chrome can't decode AC3/EAC3/DTS itself
+    const txt = info.subs.map((x, i) => ({ ...x, i })).filter(x => x.text);
+    if (info.subs.some(x => !x.text)) toast("Some subtitle tracks are image-based (PGS/VobSub) and can't be shown as text.");
+    if (noNative) { proc("Starting audio…"); await selectAudio(0); }
+    proc(info.audio.length > 1 ? "Tracks ready. Use 🎧 Audio / 💬 Subs" : "");
+    if (!txt.length) return;
+    await FS.run(async () => {                               // subtitles: separate worker, so it never delays the audio
+      if (my !== jobId) return;
+      const ff = await FS.mount(f), args = ["-i", "/in/" + FS.name];
+      txt.forEach(x => args.push("-map", "0:s:" + x.i, "-f", "webvtt", "s" + x.i + ".vtt"));
+      await ff.exec(args);
+      for (const x of txt) {
+        try { const vtt = new TextDecoder().decode(await ff.readFile("s" + x.i + ".vtt")); await ff.deleteFile("s" + x.i + ".vtt"); if (my === jobId && vtt.trim()) socket.emit("subs", { id: "s" + x.i, label: x.label, vtt }); } catch {}
+      }
+    });
+  } catch (e) { if (my === jobId) { proc(""); toast("Couldn't read the tracks in this browser (" + (e.message || e) + "). The video still plays normally."); } }
+}
+
+/* ---------- live audio engine: converts the chosen track ~20 s at a time, just ahead of the playhead, and plays it in step with the video ---------- */
+const AE = { bufs: new Map(), srcs: [], gen: 0, k0: 0, ready: new Set(), hold: 0, holding: false, selfPause: false, fa: null, fjobs: new Map(), fcur: null };
+let actx = null, adest = null, aout = null, segN = 0;
+function ensureCtx() {
+  if (actx) return; actx = new AudioContext(); adest = actx.createMediaStreamDestination(); aout = actx.createGain();
+  aout.connect(adest); aout.connect(actx.destination);
+}
+function getSeg(track, k, warm) {                        // -> Promise<AudioBuffer|null>, cached
+  const key = jobId + ":" + track + ":" + k, hit = AE.bufs.get(key); if (!warm) AE.k0 = k; if (hit) return hit;
+  const my = jobId, p = FA.run(async () => {
+    if (my !== jobId) return null;
+    if (k < AE.k0 || k > AE.k0 + 2) { AE.bufs.delete(key); return null; }   // the user already jumped elsewhere: skip stale work
+    const ff = await FA.mount(FA.file || window._lastFile), out = "g" + (segN++) + ".raw";
+    const code = await ff.exec(["-ss", String(k * SEG), "-t", String(SEG), "-i", "/in/" + FA.name, "-map", "0:a:" + track, "-vn", "-ac", "2", "-ar", "44100", "-f", "s16le", out]);
+    if (code !== 0) throw new Error("audio convert failed (code " + code + ")");
+    const raw = await ff.readFile(out); await ff.deleteFile(out);
+    const n = raw.length >> 2; if (n < 2205) return null;     // nothing left (past the end)
+    const i16 = new Int16Array(raw.buffer.slice(raw.byteOffset, raw.byteOffset + n * 4)), b = new AudioBuffer({ length: n, numberOfChannels: 2, sampleRate: 44100 }), L = b.getChannelData(0), R = b.getChannelData(1);
+    for (let i = 0; i < n; i++) { L[i] = i16[2 * i] / 32768; R[i] = i16[2 * i + 1] / 32768; }
+    return b;
+  });
+  p.then(b => { if (b) AE.ready.add(key); }, () => AE.bufs.delete(key));
+  AE.bufs.set(key, p);
+  while (AE.bufs.size > 8) { const old = AE.bufs.keys().next().value; AE.bufs.delete(old); AE.ready.delete(old); }
+  return p;
+}
+function aeStop() { AE.gen++; AE.srcs.forEach(x => { try { x.s.onended = null; x.s.stop(); } catch {} }); AE.srcs = []; }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function aeStart() {                                // (re)start audio from wherever the video is now
+  aeStop(); if (fullActive()) return syncFull(true); if (!ALT.on || vid.paused || !actx) return;
+  const gen = AE.gen, track = ALT.track, t = vid.currentTime, rate = vid.playbackRate || 1;
+  let k = Math.floor(t / SEG), off = t - k * SEG, when = 0, first = true;
+  try {
+    while (gen === AE.gen) {
+      const pending = AE.bufs.get(jobId + ":" + track + ":" + k) ? null : setTimeout(() => gen === AE.gen && proc("Buffering audio…"), 600);
+      const buf = await getSeg(track, k); clearTimeout(pending); if (gen !== AE.gen) return;
+      if (!buf) return;
+      if (first) { proc(""); const t2 = vid.currentTime, k2 = Math.floor(t2 / SEG); off = t2 - k2 * SEG; if (k2 !== k) { k = k2; continue; } }
+      getSeg(track, k + 1, true).catch(() => {});                // warm the next chunk
+      const s = actx.createBufferSource(); s.buffer = buf; s.playbackRate.value = rate; s.connect(aout);
+      const start = first ? actx.currentTime + 0.05 : Math.max(when, actx.currentTime + 0.02);
+      s.start(start, off); const dur = (buf.duration - off) / rate, e = { s, start, v0: k * SEG + off, rate, dur }; AE.srcs.push(e);
+      s.onended = () => { AE.srcs = AE.srcs.filter(x => x !== e); };
+      when = start + dur; first = false; k++; off = 0;
+      await sleep(Math.max(0, (when - actx.currentTime - 6) * 1000));      // schedule the next chunk when this one is nearly over
+    }
+  } catch (e) { if (gen === AE.gen) { proc(""); toast("Audio problem: " + (e.message || e)); } }
+}
+
+/* ---------- whole-track audio: prepared once in the background, then played by the browser itself -> instant seeking, tight sync ---------- */
+const fullActive = () => !!(AE.fa && AE.fa.job === jobId && ALT.on && AE.fa.track === ALT.track);
+let fpOpen = false, fpText = "";
+const fproc = t => {                                      // progress is hidden; a small button shows it only when clicked
+  fpText = t || ""; if (!fpText) fpOpen = false;
+  $("fpb").classList.toggle("hidden", !fpText); $("fpb").textContent = fpText.startsWith("✓") ? "✓ Audio" : "⏳ Audio";
+  $("fproc").textContent = fpText; $("fproc").classList.toggle("hidden", !fpText || !fpOpen);
+};
+$("fpb").onclick = () => { fpOpen = !fpOpen; $("fproc").classList.toggle("hidden", !fpOpen || !fpText); };
+function dropFull() {
+  AE.fjobs.forEach(v => { if (v.url) URL.revokeObjectURL(v.url); }); AE.fjobs.clear();
+  if (AE.fa) { try { AE.fa.aud.pause(); AE.fa.node.disconnect(); } catch {} AE.fa = null; }
+  AE.fcur = null; fproc("");
+}
+function abortFull() {                                    // stop a running preparation (user picked another track)
+  try { FT.ff && FT.ff.terminate(); } catch {}
+  FT.ff = null; FT.file = null; FT.q = Promise.resolve(); FT.onlog = null;
+}
+function syncFull(hard) {
+  const f = AE.fa; if (!f || !fullActive()) return; const a = f.aud, rate = vid.playbackRate || 1;
+  if (vid.paused || vid.seeking) { if (!a.paused) a.pause(); if (hard) a.currentTime = vid.currentTime; return; }
+  const d = vid.currentTime - a.currentTime;               // > 0: audio is behind the picture
+  if (hard || Math.abs(d) > 0.25) { a.currentTime = vid.currentTime; a.playbackRate = rate; }
+  else a.playbackRate = Math.abs(d) > 0.04 ? rate * (1 + Math.sign(d) * 0.04) : rate;   // gentle nudge, no audible jump
+  if (a.paused) a.play().catch(() => {});
+}
+setInterval(() => fullActive() && syncFull(false), 250);
+vid.addEventListener("seeking", () => fullActive() && AE.fa.aud.pause());
+vid.addEventListener("waiting", () => fullActive() && AE.fa.aud.pause());
+vid.addEventListener("playing", () => fullActive() && syncFull(true));
+document.addEventListener("click", () => { if (actx && actx.state === "suspended") actx.resume().catch(() => {}); });
+function engageFull() {                                    // switch from the chunk engine to the full track
+  aeStop(); AE.hold++; const wasHolding = AE.holding; AE.holding = false; proc("");
+  if (wasHolding && vid.paused) vid.play().catch(() => {});
+  syncFull(true);
+}
+async function prepFull(i) {
+  if (!H.info || !H.info.audio[i]) return;
+  const my = jobId, key = my + ":" + i, done = AE.fjobs.get(key);
+  if (AE.fcur && AE.fcur !== key && AE.fjobs.get(AE.fcur)?.running) { AE.fjobs.delete(AE.fcur); abortFull(); }   // another track was running: cancel it
+  if (done) { if (done.url && !(AE.fa && AE.fa.track === i)) attachFull(my, i, done.url); return; }
+  const job = { running: true, url: null }; AE.fjobs.set(key, job); AE.fcur = key;
+  const codec = H.info.audio[i].codec, total = () => D() || 0;
+  fproc("Preparing full audio… 0%");
+  try {
+    await FT.run(async () => {
+      if (my !== jobId || AE.fjobs.get(key) !== job) return;
+      const ff = await FT.mount(FA.file || window._lastFile);
+      FT.onlog = m => { const t = /time=(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(m); if (t && total() && AE.fjobs.get(key) === job) fproc("Preparing full audio… " + Math.min(99, Math.round((+t[1] * 3600 + +t[2] * 60 + +t[3]) / total() * 100)) + "% (seeking is instant after this)"); };
+      const attempts = codec === "aac" ? [["m4a", ["-c:a", "copy"]], ["m4a", ["-c:a", "aac", "-b:a", "128k", "-ac", "2", "-ar", "44100"]]]
+                     : codec === "mp3" ? [["mp3", ["-c:a", "copy"]], ["m4a", ["-c:a", "aac", "-b:a", "128k", "-ac", "2", "-ar", "44100"]]]
+                     : [["m4a", ["-c:a", "aac", "-b:a", "128k", "-ac", "2", "-ar", "44100"]]];
+      for (const [ext, enc] of attempts) {
+        const out = "full" + i + "." + ext;
+        if (my !== jobId || AE.fjobs.get(key) !== job) return;
+        const code = await ff.exec(["-i", "/in/" + FT.name, "-map", "0:a:" + i, "-vn", ...enc, out]);
+        if (code !== 0) { try { await ff.deleteFile(out); } catch {} continue; }
+        const raw = await ff.readFile(out); await ff.deleteFile(out);
+        if (my !== jobId || AE.fjobs.get(key) !== job) return;
+        job.url = URL.createObjectURL(new Blob([raw.buffer], { type: ext === "mp3" ? "audio/mpeg" : "audio/mp4" })); job.running = false;
+        attachFull(my, i, job.url); return;
+      }
+      throw new Error("could not prepare this audio track");
+    });
+  } catch (e) { if (AE.fjobs.get(key) === job) { AE.fjobs.delete(key); fproc(""); if (!/terminate/i.test(e.message || "")) toast("Full audio prep failed, using live mode: " + (e.message || e)); } }
+  finally { if (AE.fcur === key) FT.onlog = null; if (AE.fjobs.get(key) === job && !job.url) job.running = false; }
+}
+function attachFull(my, i, url) {
+  if (my !== jobId) return;
+  if (AE.fa) { try { AE.fa.aud.pause(); AE.fa.node.disconnect(); } catch {} AE.fa = null; }
+  ensureCtx(); const aud = new Audio(); aud.preload = "auto"; aud.src = url;
+  const node = actx.createMediaElementSource(aud); node.connect(aout);
+  AE.fa = { job: my, track: i, aud, node };
+  aud.addEventListener("error", () => { if (AE.fa && AE.fa.aud === aud) { AE.fa = null; fproc(""); toast("Full audio failed, using live mode"); if (ALT.on) seekedAudio(); } });
+  const go = () => { if (!(AE.fa && AE.fa.aud === aud)) return; fproc(AE.fjobs.has(my + ":" + i) ? "✓ Audio ready: instant seeking" : ""); setTimeout(() => AE.fa && AE.fa.aud === aud && fproc(""), 4000); if (fullActive()) engageFull(); };
+  aud.readyState >= 1 ? go() : aud.addEventListener("loadedmetadata", go, { once: true });
+}
+async function selectAudio(i) {
+  if (role !== "host" || !H.info || !H.info.audio[i]) return;
+  H.a = i;
+  const was = ALT.on;
+  if (i === 0 && !noNative) { ALT.on = false; aeStop(); if (AE.fa) AE.fa.aud.pause(); proc(""); fproc(""); vid.muted = false; }
+  else { ensureCtx(); actx.resume().catch(() => {}); if (AE.fa && AE.fa.track !== i) AE.fa.aud.pause(); ALT.on = true; ALT.track = i; vid.muted = true; AE.bufs.forEach((_, k) => { if (!k.startsWith(jobId + ":" + i + ":")) AE.bufs.delete(k); }); }
+  hostSync();
+  if (was !== ALT.on) { composeStream(); reconnectAll(); }
+  if (ALT.on) prepFull(i);
+  if (ALT.on) { if (vid.paused) await getSeg(i, Math.floor(vid.currentTime / SEG)).catch(() => {}); else seekedAudio(); }
+}
+async function seekedAudio() {                            // after a jump: wait (video paused) until the audio for the new spot is ready, then resume
+  if (!ALT.on) return; if (fullActive()) return syncFull(true);
+  const track = ALT.track, k = Math.floor(vid.currentTime / SEG), key = jobId + ":" + track + ":" + k;
+  if (vid.paused && !AE.holding) { getSeg(track, k).catch(() => {}); return; }
+  if (AE.ready.has(key) && AE.bufs.has(key)) { AE.hold++; AE.holding = false; proc(""); if (vid.paused) vid.play().catch(() => {}); else aeStart(); return; }
+  const h = ++AE.hold; AE.holding = true; proc("Buffering audio…");
+  if (!vid.paused) { AE.selfPause = true; vid.pause(); }
+  await Promise.race([getSeg(track, k).catch(() => {}), sleep(20000)]);
+  if (h !== AE.hold) return;
+  AE.holding = false; proc(""); vid.play().catch(() => {});
+}
+vid.addEventListener("play", () => { if (!ALT.on) return; if (fullActive()) return syncFull(true); if (AE.holding) { AE.hold++; AE.holding = false; } aeStart(); });
+vid.addEventListener("pause", () => { if (!ALT.on) return; if (fullActive()) return syncFull(true); aeStop(); if (AE.selfPause) AE.selfPause = false; else { AE.hold++; AE.holding = false; proc(""); } });
+vid.addEventListener("seeked", seekedAudio);
+vid.addEventListener("ratechange", () => { if (ALT.on) fullActive() ? syncFull(true) : aeStart(); });
+setInterval(() => {                                       // keep audio locked to the video; re-sync if they drift apart
+  if (fullActive()) return;
+  if (!ALT.on || vid.paused || !actx) return;
+  const now = actx.currentTime, e = AE.srcs.find(x => now >= x.start && now < x.start + x.dur);
+  if (e && Math.abs(vid.currentTime - (e.v0 + (now - e.start) * e.rate)) > 0.35) aeStart();
+}, 1000);
+$("subb").onclick = () => $("subf").click();
+$("subf").onchange = async e => { const f = e.target.files[0]; if (f) socket.emit("subs", { id: "f" + Date.now(), label: f.name.replace(/\.\w+$/, ""), vtt: await f.text() }); e.target.value = ""; };
+socket.on("viewer-joined", id => { viewers.add(id); if (stream) connectViewer(id); });
+socket.on("viewer-left", id => { viewers.delete(id); peers[id]?.close(); delete peers[id]; });
+async function connectViewer(id) {
+  const pc = new RTCPeerConnection(await cfgP); peers[id] = pc;
+  stream.getTracks().forEach(t => pc.addTrack(t, stream));
+  pc.onicecandidate = e => e.candidate && socket.emit("signal", { to: id, data: { candidate: e.candidate } });
+  await pc.setLocalDescription(await pc.createOffer());
+  socket.emit("signal", { to: id, data: { offer: pc.localDescription } });
+  if (vid.paused && !H.on) vid.currentTime = vid.currentTime;
+}
+
+/* ---------- viewer: receive stream ---------- */
+let vpc = null;
+socket.on("host-left", () => { vid.srcObject = null; $("empty").classList.remove("hidden"); $("etxt").textContent = "The host left the party."; });
+socket.on("signal", async ({ from, data }) => {
+  if (data.offer) {
+    vpc?.close(); vpc = new RTCPeerConnection(await cfgP);
+    vpc.onicecandidate = e => e.candidate && socket.emit("signal", { to: from, data: { candidate: e.candidate } });
+    vpc.ontrack = e => {
+      try { e.receiver.playoutDelayHint = 0; if ("jitterBufferTarget" in e.receiver) e.receiver.jitterBufferTarget = 0; } catch {}
+      vid.srcObject = e.streams[0]; $("empty").classList.add("hidden");
+      vid.volume = 1; vid.muted = false; vid.play().catch(() => { vid.muted = true; vid.play().catch(() => {}); $("unm").classList.remove("hidden"); });
+    };
+    await vpc.setRemoteDescription(data.offer);
+    await vpc.setLocalDescription(await vpc.createAnswer());
+    socket.emit("signal", { to: from, data: { answer: vpc.localDescription } });
+  } else if (data.answer) await peers[from]?.setRemoteDescription(data.answer);
+  else if (data.candidate) try { await (peers[from] || vpc)?.addIceCandidate(data.candidate); } catch {}
+});
+
+/* ---------- party: countdown, ready, chat, people, reactions ---------- */
+socket.on("countdown", () => {
+  let n = 3; const el = $("cd"); el.classList.remove("hidden");
+  const tick = () => { el.textContent = n > 0 ? n : "Play!"; if (n === 0) { if (role === "host") apply("play"); return setTimeout(() => el.classList.add("hidden"), 900); } n--; setTimeout(tick, 1000); };
+  tick();
+});
+$("rdy").onclick = () => { if (!S.d) return toast(role === "host" ? "Pick a movie first." : "Waiting for the host to pick a movie."); socket.emit("ready"); };
+const COL = ["#FF9FC7","#6ec6ff","#ff8fa3","#9be37a","#c79bff","#ffc4de","#5ee0c1"];
+const colOf = n => COL[[...n].reduce((x, c) => x + c.charCodeAt(0), 0) % COL.length];
+const hhmm = t => new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+const fmtText = t => esc(t).replace(/\|\|(.+?)\|\|/g, '<span class="sp2" onclick="this.classList.add(\'on\')">$1</span>').replace(/\n/g, "<br>");
+const onlyEmoji = t => /^(\p{Extended_Pictographic}|\u200d|\ufe0f|\s){1,6}$/u.test(t);
+let lastCid = null, unread = 0, tabChat = true, typT, lastTyp = 0;
+function stickAdd(d) { const b = $("msgs"), near = b.scrollHeight - b.scrollTop - b.clientHeight < 140; b.append(d); if (near || d.classList.contains("me")) b.scrollTop = b.scrollHeight; }
+function addMsg(m) {
+  const mine = m.cid === myCid, d = document.createElement("div");
+  d.className = "bub " + (mine ? "me" : "them") + (onlyEmoji(m.text) ? " big" : "") + (m.cid === lastCid ? " cont" : "");
+  d.innerHTML = (!mine && m.cid !== lastCid ? `<div class="who" style="color:${colOf(m.name)}">${m.face} ${esc(m.name)}</div>` : "") + `<span>${fmtText(m.text)}</span><i class="ts">${hhmm(m.ts)}${mine ? " ✓✓" : ""}</i>`;
+  lastCid = m.cid; stickAdd(d);
+  if (!mine && !tabChat) { unread++; $("ub").textContent = unread; $("ub").classList.remove("hidden"); }
+}
+function addSys(t) { const d = document.createElement("div"); d.className = "sys"; d.textContent = t; lastCid = null; stickAdd(d); }
+socket.on("history", ms => { $("msgs").innerHTML = ""; lastCid = null; ms.forEach(addMsg); unread = 0; $("ub").classList.add("hidden"); $("msgs").scrollTop = 1e9; });
+socket.on("chat", addMsg); socket.on("sys", addSys);
+socket.on("typing", ({ name, cid }) => { if (cid === myCid) return; $("typ").textContent = name + " is typing…"; clearTimeout(typT); typT = setTimeout(() => $("typ").textContent = "", 2500); });
+const cin = $("cin");
+const grow = () => { cin.style.height = "auto"; cin.style.height = Math.min(cin.scrollHeight, 110) + "px"; };
+function send() { const v = cin.value.trim(); if (!v) return; if (!socket.connected) return addSys("You're offline. Reconnecting…"); socket.emit("chat", v); cin.value = ""; grow(); $("emo").classList.add("hidden"); cin.focus(); }
+cin.oninput = () => { grow(); if (Date.now() - lastTyp > 1500) { lastTyp = Date.now(); socket.emit("typing"); } };
+cin.onkeydown = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
+$("send").onclick = send;
+const EMO = {
+  "😀": "😀😃😄😁😆😅😂🤣🥲😊😇🙂😉😍🥰😘😋😛😜🤪😎🤩🥳😏😒😞😔😢😭😤😡🤯😱😨😴🤔🙄😬",
+  "👍": "👍👎👌✌️🤞🤟🤘👏🙌🙏💪👀🤝✋👋🫶🤙☝️👊✊",
+  "❤️": "❤️🧡💛💚💙💜🖤🤍💔💕💞💖💗💯🔥✨🎉🎊⭐🌟💥💫",
+  "🍿": "🍿🎬🎥📽️🎞️🍕🍔🍟🌭🍩🍪🍫🍦🥤🍺🍷☕🎮🎧",
+  "🐶": "🐶🐱🐭🐹🐰🦊🐻🐼🐨🐯🦁🐸🐵🙈🙉🙊🐧🐦🦄🐙🦋👻💀👽🤖"
+};
+const seg = t => window.Intl?.Segmenter ? [...new Intl.Segmenter().segment(t)].map(x => x.segment) : [...t];
+const cats = Object.keys(EMO);
+function showCat(k) { $("eg").innerHTML = seg(EMO[k]).map(e => `<button>${e}</button>`).join(""); [...$("ec").children].forEach(b => b.classList.toggle("on", b.textContent === k)); }
+$("ec").innerHTML = cats.map(k => `<button>${k}</button>`).join(""); $("ec").onclick = e => e.target.tagName === "BUTTON" && showCat(e.target.textContent);
+$("eg").onclick = e => {
+  if (e.target.tagName !== "BUTTON") return;
+  const em = e.target.textContent, a = cin.selectionStart ?? cin.value.length, z = cin.selectionEnd ?? a;
+  cin.value = cin.value.slice(0, a) + em + cin.value.slice(z); cin.focus(); cin.selectionStart = cin.selectionEnd = a + em.length; grow();
+};
+$("emoBtn").onclick = () => { $("emo").classList.toggle("hidden"); showCat(cats[0]); };
+$("t1").onclick = () => { tabChat = true; unread = 0; $("ub").classList.add("hidden"); $("t1").classList.add("on"); $("t2").classList.remove("on"); $("chat").classList.remove("hidden"); $("plist").classList.add("hidden"); $("msgs").scrollTop = 1e9; };
+$("t2").onclick = () => { tabChat = false; $("t2").classList.add("on"); $("t1").classList.remove("on"); $("plist").classList.remove("hidden"); $("chat").classList.add("hidden"); };
+function menu(title, items, pick) {
+  const m = $("menu");
+  m.innerHTML = `<b>${title}</b>` + items.map((x, i) => `<button class="${x.on ? "on" : ""}" data-i="${i}">${x.on ? "✓ " : ""}${esc(x.label)}</button>`).join("");
+  m.classList.remove("hidden");
+  m.onclick = e => { const b = e.target.closest("button"); if (b) { pick(+b.dataset.i); m.classList.add("hidden"); } };
+}
+document.addEventListener("click", e => { if (!e.target.closest("#menu")) $("menu").classList.add("hidden"); });
+$("aud").onclick = e => { e.stopPropagation(); if (!S.au?.length) return toast(role === "host" ? "Still reading this file's audio tracks…" : "The host's file has one audio track."); menu("Audio track (whole room)", S.au.map((l, i) => ({ label: l, on: i === S.a })), i => cmd("audio", i)); };
+const SUBS = []; let subId = null;
+$("sbt").onclick = e => { e.stopPropagation(); menu("Subtitles", [{ label: "Off", on: !subId }, ...SUBS.map(x => ({ label: x.label, on: x.id === subId }))], i => { subId = i ? SUBS[i - 1].id : null; }); };
+function parseCues(t) {
+  t = t.replace(/\r/g, "");
+  const sec = (h, m, s, ms) => (+h || 0) * 3600 + +m * 60 + +s + +ms / 1000, out = [];
+  const re = /(?:(\d+):)?(\d{2}):(\d{2})[.,](\d{3}) --> (?:(\d+):)?(\d{2}):(\d{2})[.,](\d{3})[^\n]*\n([\s\S]*?)(?=\n\n|$)/g;
+  let m; while ((m = re.exec(t))) out.push({ s: sec(m[1], m[2], m[3], m[4]), e: sec(m[5], m[6], m[7], m[8]), x: m[9].replace(/<[^>]+>/g, "").replace(/\{\\[^}]*\}/g, "").trim() });
+  return out;
+}
+const addSub = x => { const o = { id: x.id, label: x.label, cues: parseCues(x.vtt) }, i = SUBS.findIndex(y => y.id === x.id); i < 0 ? SUBS.push(o) : SUBS[i] = o; };
+socket.on("subs", addSub); socket.on("subs-all", l => l.forEach(addSub)); socket.on("subs-clear", () => { SUBS.length = 0; subId = null; });
+setInterval(() => {
+  const el = $("sub"), tr = SUBS.find(x => x.id === subId);
+  if (!tr) return el.classList.add("hidden");
+  const ct = role === "host" ? T() : S.t + (S.p ? 0 : (performance.now() - (S.at || 0)) / 1000 * S.r) - 0.4;
+  const c = tr.cues.find(c => ct >= c.s && ct <= c.e);
+  if (c && c.x) { el.innerHTML = esc(c.x).replace(/\n/g, "<br>"); el.classList.remove("hidden"); } else el.classList.add("hidden");
+}, 200);
+socket.on("members", ms => {
+  $("cnt").textContent = ms.length; $("ptab").textContent = "People " + ms.length;
+  $("status").textContent = ms.length > 1 ? ms.length + " watching · " + ms.filter(m => m.ready).length + "/" + ms.length + " ready" : "Waiting for friends · share the invite";
+  $("plist").innerHTML = ms.map(m => `<div class="pr"><span class="av">${m.face}</span><span>${esc(m.name)}${m.host ? " 👑" : ""}</span><span class="rd">${m.ready ? "✓ ready" : ""}</span></div>`).join("");
+  $("rdy").classList.toggle("on", !!ms.find(m => m.id === socket.id)?.ready);
+});
+$("rx").innerHTML = ["😂","😱","😭","🔥","❤️","👏","🤯","💀"].map(e => `<button>${e}</button>`).join("");
+$("rx").onclick = e => e.target.tagName === "BUTTON" && socket.emit("react", e.target.textContent);
+socket.on("react", e => { const s = document.createElement("span"); s.className = "fl"; s.textContent = e; s.style.left = 8 + Math.random() * 84 + "%"; stage.append(s); setTimeout(() => s.remove(), 2500); });
+</script></body></html>
